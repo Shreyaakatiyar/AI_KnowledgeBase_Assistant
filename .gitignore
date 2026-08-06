@@ -1,0 +1,22 @@
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.egg-info/
+
+# Vector store data 
+data/vector_store/*
+!data/vector_store/.gitkeep
+
+# Logs
+logs/*.log
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
