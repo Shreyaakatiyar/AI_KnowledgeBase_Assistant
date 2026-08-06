@@ -1,2 +1,4 @@
 pydantic-settings==2.6.1
 python-dotenv==1.0.1
+pypdf==5.1.0
+reportlab==4.2.5
