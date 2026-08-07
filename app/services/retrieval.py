@@ -5,6 +5,7 @@ from app.core.config import get_settings
 from app.services.query_transform import expand_query
 from app.services.vector_store import VectorStore, RetrievedChunk
 from app.services.keyword_search import BM25Index
+from app.services.reranking import rerank
 
 logger = get_logger(__name__)
 settings = get_settings()
@@ -70,25 +71,32 @@ def retrieve(
     query: str,
     use_query_expansion: bool = True,
     use_hybrid_search: bool = True,
+    use_reranking: bool = True,
     top_k: int | None = None,
 ) -> list[RetrievedChunk]:
     store = VectorStore()
-    top_k = top_k or settings.top_k_retrieval
+    retrieval_k = settings.top_k_retrieval
     queries = expand_query(query) if use_query_expansion else [query]
 
     if use_hybrid_search:
         bm25_index = BM25Index(store)
         result_lists = [
-            _hybrid_search_single_query(q, store, bm25_index, top_k) for q in queries
+            _hybrid_search_single_query(q, store, bm25_index, retrieval_k) for q in queries
         ]
     else:
-        result_lists = [store.similarity_search(q, top_k=top_k) for q in queries]
+        result_lists = [store.similarity_search(q, top_k=retrieval_k) for q in queries]
 
     merged = _merge_results(result_lists)
 
     query_preview = query[:60] + "..." if len(query) > 60 else query
     logger.info(
-        f"Retrieved {len(merged)} unique chunks from {len(queries)} query variant(s) "
+        f"Retrieved {len(merged)} unique candidates from {len(queries)} query variant(s) "
         f"(hybrid={use_hybrid_search}) for: '{query_preview}'"
     )
-    return merged[:top_k]
+
+    if use_reranking:
+        final_k = top_k or settings.top_k_reranked
+        return rerank(query, merged, top_k=final_k)
+
+    final_k = top_k or retrieval_k
+    return merged[:final_k]
