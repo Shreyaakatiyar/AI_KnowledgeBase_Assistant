@@ -13,8 +13,6 @@ class Settings(BaseSettings):
 
     chunk_size: int = 800
     chunk_overlap: int = 150
-    top_k_retrieval: int = 10
-    top_k_reranked: int = 4
 
     environment: str = "development"
     log_level: str = "INFO"
