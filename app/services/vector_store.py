@@ -54,11 +54,17 @@ class VectorStore:
 
     def similarity_search(self, query: str, top_k: int | None = None) -> list[RetrievedChunk]:
         top_k = top_k or settings.top_k_retrieval
+        available = self.count()
+        if available == 0:
+            logger.warning("similarity_search called on an empty vector store.")
+            return []
+        effective_k = min(top_k, available)
+
         try:
             query_embedding = embed_query(query)
             results = self.collection.query(
                 query_embeddings=[query_embedding],
-                n_results=top_k,
+                n_results=effective_k,
             )
         except Exception as e:
             raise VectorStoreError(f"Similarity search failed: {e}") from e
