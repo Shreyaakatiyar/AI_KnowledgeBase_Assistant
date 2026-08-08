@@ -3,6 +3,8 @@ from rank_bm25 import BM25Okapi
 
 from app.core.logging_config import get_logger
 from app.services.vector_store import VectorStore
+from functools import lru_cache
+from app.services.vector_store import VectorStore, get_vector_store  
 
 logger = get_logger(__name__)
 
@@ -54,3 +56,8 @@ class BM25Index:
             reverse=True,
         )
         return [(cid, score, doc, meta) for cid, score, doc, meta in ranked[:top_k] if score > 0]
+
+@lru_cache
+def get_bm25_index() -> "BM25Index":
+    """Process-wide singleton - avoids re-tokenizing the whole corpus on every call."""
+    return BM25Index(get_vector_store())

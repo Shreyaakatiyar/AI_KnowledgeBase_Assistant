@@ -7,6 +7,7 @@ from app.core.exceptions import VectorStoreError
 from app.core.logging_config import get_logger
 from app.services.ingestion import Chunk
 from app.services.embeddings import embed_texts, embed_query
+from functools import lru_cache
 
 settings = get_settings()
 logger = get_logger(__name__)
@@ -96,3 +97,7 @@ class VectorStore:
             metadata={"hnsw:space": "cosine"},
         )
         logger.info("Vector store collection reset.")
+
+@lru_cache
+def get_vector_store() -> "VectorStore":
+    return VectorStore()

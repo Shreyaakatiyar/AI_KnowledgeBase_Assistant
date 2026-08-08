@@ -3,8 +3,8 @@ from collections import defaultdict
 from app.core.logging_config import get_logger
 from app.core.config import get_settings
 from app.services.query_transform import expand_query
-from app.services.vector_store import VectorStore, RetrievedChunk
-from app.services.keyword_search import BM25Index
+from app.services.vector_store import VectorStore, RetrievedChunk, get_vector_store
+from app.services.keyword_search import BM25Index, get_bm25_index
 from app.services.reranking import rerank
 
 logger = get_logger(__name__)
@@ -74,12 +74,12 @@ def retrieve(
     use_reranking: bool = True,
     top_k: int | None = None,
 ) -> list[RetrievedChunk]:
-    store = VectorStore()
+    store = get_vector_store()     
     retrieval_k = settings.top_k_retrieval
     queries = expand_query(query) if use_query_expansion else [query]
 
     if use_hybrid_search:
-        bm25_index = BM25Index(store)
+        bm25_index = get_bm25_index()
         result_lists = [
             _hybrid_search_single_query(q, store, bm25_index, retrieval_k) for q in queries
         ]
