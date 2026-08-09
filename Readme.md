@@ -5,9 +5,6 @@ Retrieval-Augmented Generation (RAG) — query expansion, hybrid search
 (vector + keyword), reranking, structured outputs, and guardrails, served
 through a FastAPI backend.
 
-Built as part of a GenAI development learning program (Week 5: Enterprise
-GenAI Development).
-
 ## Features
 
 - Multi-query expansion + hybrid search (vector + BM25) + cross-encoder reranking
